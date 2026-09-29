@@ -2,8 +2,9 @@ import { Controller, Get } from "@nestjs/common";
 import { TasksService } from "./tasks.service";
 interface Tasks{
     id: number;
-    title : string;
-    status: string;
+    name : string;
+    email: string;
+    phone: string;
 }
 @Controller()
 export class TasksController{
