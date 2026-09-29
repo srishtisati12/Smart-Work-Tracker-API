@@ -34,6 +34,15 @@ export class TasksService{
         status: 'pending', 
 
       }, 
+      { 
+
+        id: 4, 
+
+        title: 'Connect React', 
+
+        status: 'pending', 
+
+      }, 
 
     ]; 
     }
