@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Tasks } from "./tasks.controller";
+import { UpdateTaskDto } from "./update-task-dto";
 
 @Injectable()
 export class TasksService {
@@ -57,6 +58,18 @@ export class TasksService {
         this.task.push(tasks);
         return this.task;
     };
+    
+    updateTask(id: number, updatetaskdto: UpdateTaskDto){
+        const index = this.task.findIndex((item)=> item.id===id);
+        if (index === -1) {
+            throw new Error("Task not found");
+        }
+        this.task[index]={
+            ...this.task[index],...updatetaskdto
+        }
+        return this.task[index];
+    }
+
     deleteTask(id: number){
         this.task= this.task.filter((item)=> item.id!==id);
         return this.task;
