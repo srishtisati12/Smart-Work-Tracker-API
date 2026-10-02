@@ -1,77 +1,54 @@
-import { Injectable } from "@nestjs/common";
-import { Tasks } from "./tasks.controller";
-import { UpdateTaskDto } from "./update-task-dto";
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Task, TaskDocument } from "./schemas/task.schema";
+import { Model } from "mongoose";
+import { CreateTaskDto } from "./dto/create-task-dto";
+import { UpdateTaskDto } from "./dto/update-task-dto";
 
 @Injectable()
 export class TasksService {
-    private task: Tasks[] = [
+    constructor(@InjectModel(Task.name) private taskModel: Model<TaskDocument>
 
-        {
-            id: 1,
-            name: "Rahul Sharma",
-            email: "rahul@gmail.com",
-            phone: "9876543210"
-        },
-        {
-            id: 2,
-            name: "Priya Singh",
-            email: "priya@gmail.com",
-            phone: "9876543211"
-        },
-        {
-            id: 3,
-            name: "Aman Verma",
-            email: "aman@gmail.com",
-            phone: "9876543212"
-        },
-        {
-            id: 4,
-            name: "Neha Gupta",
-            email: "neha@gmail.com",
-            phone: "9876543213"
-        },
-        {
-            id: 5,
-            name: "Arjun Mehta",
-            email: "arjun@gmail.com",
-            phone: "9876543214"
+    ) {}
+    async getdata(status?: string, priority?: string, search?:string) {
+        let  task = await this.taskModel.find();
+        if (status){
+            task = await this.taskModel.find({status});
         }
-    ];
-    getdata(name?: string, email?: string): Tasks[] {
-        let result = this.task;
-        if (name) {
-            result = result.filter((item) => item.name.toLowerCase().includes(name.toLocaleLowerCase()))
+        if(priority){
+            task= await  this.taskModel.find({priority});
         }
-        if (email) {
-            result = result.filter((item) => item.email.toLowerCase().includes(email.toLowerCase()))
-        }
-        return result;
+        if(search){
+            task =  await this.taskModel.find({title: { $regex: search, $options: 'i' }});
+        } 
+        return task;
     }
-    getdatabyid(id: number) {
-        return this.task.find((user) => user.id === id);
+
+    async getdatabyid(id: string) {
+       const task=   await this.taskModel.findOne({ id });
+       if (!task) {
+           throw new NotFoundException("Task not found");
+       }
+       return task;
     }
-    createTask(body: any) {
-        const tasks = {
-            id: this.task.length + 1,
-            ...body
-        }
-        this.task.push(tasks);
-        return this.task;
+
+    async createTask(data: CreateTaskDto) {
+        return this.taskModel.create(data);
     };
     
-    updateTask(id: number, updatetaskdto: UpdateTaskDto){
-        const index = this.task.findIndex((item)=> item.id===id);
-        if (index === -1) {
-            throw new Error("Task not found");
+    async updateTask(id: string, updatetaskdto: UpdateTaskDto){
+        const task = await this.taskModel.findOneAndUpdate({ id }, updatetaskdto, { new: true });
+        if (!task) {
+            throw new NotFoundException("Task not found");
         }
-        this.task[index]={
-            ...this.task[index],...updatetaskdto
-        }
-        return this.task[index];
+        return task;
     }
 
-    deleteTask(id: number){
-        this.task= this.task.filter((item)=> item.id!==id);
-        return this.task;
+    async deleteTask(id: string){
+        const task = await this.taskModel.findOneAndDelete({ id });
+        if (!task) {
+            throw new NotFoundException("Task not found");
+        }
+        return task;
     };
 }
