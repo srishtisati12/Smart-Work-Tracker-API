@@ -1,10 +1,10 @@
 import {IsOptional, IsString, IsNotEmpty, IsIn} from "class-validator";
 
 export class CreateTaskDto { 
-  @IsOptional()
+  /*@IsOptional()
   @IsString() 
   @IsNotEmpty() 
-  userid: string; 
+  userid: string; */
 
   @IsString() 
   @IsNotEmpty() 
